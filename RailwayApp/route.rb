@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Класс Route (Маршрут):
 # Имеет начальную и конечную станцию, а также список промежуточных станций.
 # Начальная и конечная станции указываютсся при создании маршрута, а промежуточные могут добавляться
@@ -6,10 +8,8 @@
 # Может удалять промежуточную станцию из списка.
 # Может выводить список всех станций по-порядку от начальной до конечной.
 
-require_relative 'Station'
-
 class Route
-  attr_accessor :stations
+  attr_reader :stations
 
   def initialize(start_station, end_station)
     @stations = [start_station, end_station]

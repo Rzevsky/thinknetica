@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Класс Station (Станция):
 # Имеет название, которое указывается при ее создании
 # Может принимать поезда (по одному за раз)
@@ -6,11 +8,8 @@
 # Может отправлять поезда (по одному за раз, при этом, поезд удаляется из списка поездов,
 # находящихся на станции).
 
-require_relative 'Train'
-
 class Station
-  attr_accessor :trains
-  attr_reader :name
+  attr_reader :name, :trains
 
   def initialize(name)
     @name = name

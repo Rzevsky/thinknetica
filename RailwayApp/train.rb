@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Класс Train (Поезд):
 # + Имеет номер (произвольная строка) и тип (грузовой, пассажирский) и количество вагонов, эти данные
 # указываются при создании экземпляра класса.
@@ -14,12 +16,9 @@
 # но только на 1 станцию за раз.
 # + Возвращать предыдущую станцию, текущую, следующую, на основе маршрута.
 
-require_relative 'Station'
-require_relative 'Route'
-
 class Train
-  attr_reader :number, :type
-  attr_accessor :speed, :wagons, :route, :current_station, :current_station_i
+  attr_reader :number, :type, :route, :current_station_index
+  attr_accessor :speed, :wagons
 
   def initialize(number, type, wagons)
     @number = number
@@ -27,7 +26,7 @@ class Train
     @wagons = wagons
     @speed = 0
     @route = nil
-    @current_station_i = 0
+    @current_station_index = 0
   end
 
   def accelerate(speed)
@@ -35,7 +34,7 @@ class Train
   end
 
   def current_speed
-    self.speed
+    speed
   end
 
   def brake
@@ -47,25 +46,28 @@ class Train
   end
 
   def add_wagon
-    return if self.speed > 0
+    return if self.speed.positive?
 
     self.wagons += 1
   end
 
   def remove_wagon
-    return if self.speed > 0 || self.wagons.zero?
+    return if speed.positive? || wagons.zero?
 
     self.wagons -= 1
   end
 
   def set_route(route)
-    # передаю путь переменной экземпляра поезда:
-    self.route = route
-    # назначаю индекс текущей станции:
-    self.current_station_i = 0
-    # получаю текущую станцию из полученного пути:
-    self.current_station = route.stations.first
-    # вызываю текущую станцию и передаю в нее поезд:
+    # Ради эксперимента я ограничил видимость эти двух переменных, хоть это и не "принято".
+    # Пока я знаю только такой способ - как ограничить доступ к ним извне.
+    # Я не прав?
+    @route = route
+    @current_station_index = 0
+
+    # Сам себе объясняю:
+    # Вызывается метод current_station, который возвращает текущую станцию (см. в ниже, в конце).
+    # Т.е. тут вызывается метод accept_train подставленного экземпляра станции.
+    # А параметром является экземпляр поезда (self):
     current_station.accept_train(self)
   end
 
@@ -73,8 +75,8 @@ class Train
     return unless next_station # если нет следующей станции, выходим
 
     current_station.send_train(self)
-    self.current_station_i += 1
-    self.current_station = route.stations[self.current_station_i]
+
+    @current_station_index += 1
     current_station.accept_train(self)
   end
 
@@ -82,22 +84,20 @@ class Train
     return unless previous_station
 
     current_station.send_train(self)
-    self.current_station_i -= 1
-    self.current_station = route.stations[self.current_station_i]
+    @current_station_index -= 1
     current_station.accept_train(self)
   end
 
   def previous_station
-    return if self.current_station_i.zero?
-
-    route.stations[self.current_station_i - 1]
+    route.stations[current_station_index - 1]
   end
 
+  # метод возвращает текущую СТАНЦИЮ (объект класса Station)
   def current_station
-    route.stations[self.current_station_i]
+    route.stations[current_station_index]
   end
 
   def next_station
-    route.stations[@current_station_i + 1]
+    route.stations[current_station_index + 1]
   end
 end
