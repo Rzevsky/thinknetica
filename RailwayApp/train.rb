@@ -17,8 +17,7 @@
 # + Возвращать предыдущую станцию, текущую, следующую, на основе маршрута.
 
 class Train
-  attr_reader :number, :type, :route, :current_station_index
-  attr_accessor :speed, :wagons
+  attr_reader :number, :type, :route, :current_station_index, :speed, :wagons
 
   def initialize(number, type, wagons)
     @number = number
@@ -29,8 +28,8 @@ class Train
     @current_station_index = 0
   end
 
-  def accelerate(speed)
-    self.speed += speed
+  def accelerate(value)
+    @speed += value
   end
 
   def current_speed
@@ -38,7 +37,7 @@ class Train
   end
 
   def brake
-    self.speed = 0
+    @speed = 0
   end
 
   def wagons_count
@@ -46,7 +45,7 @@ class Train
   end
 
   def add_wagon
-    return if self.speed.positive?
+    return if speed.positive?
 
     self.wagons += 1
   end
@@ -58,9 +57,6 @@ class Train
   end
 
   def set_route(route)
-    # Ради эксперимента я ограничил видимость эти двух переменных, хоть это и не "принято".
-    # Пока я знаю только такой способ - как ограничить доступ к ним извне.
-    # Я не прав?
     @route = route
     @current_station_index = 0
 
