@@ -32,10 +32,6 @@ class Train
     @speed += value
   end
 
-  def current_speed
-    speed
-  end
-
   def brake
     @speed = 0
   end
