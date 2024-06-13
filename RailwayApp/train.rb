@@ -1,25 +1,9 @@
 # frozen_string_literal: true
 
-# Класс Train (Поезд):
-# + Имеет номер (произвольная строка) и тип (грузовой, пассажирский) и количество вагонов, эти данные
-# указываются при создании экземпляра класса.
-# + Может набирать скорость.
-# + Может возвращать текущую скорость.
-# + Может тормозить (сбрасывать скорость до нуля).
-# + Может возвращать количество вагонов.
-# + Может прицеплять/отцеплять вагоны (по одному вагону за операцию, метод просто увеличивает или
-# уменьшает количество вагонов). Прицепка/отцепка вагонов может осуществляться только если поезд не
-# движется.
-# + Может принимать маршрут следования (объект класса Route).
-# + При назначении маршрута поезду, поезд автоматически помещается на первую станцию в маршруте.
-# + Может перемещаться между станциями, указанными в маршруте. Перемещение возможно вперед и назад,
-# но только на 1 станцию за раз.
-# + Возвращать предыдущую станцию, текущую, следующую, на основе маршрута.
-
 class Train
   attr_reader :number, :type, :route, :current_station_index, :speed, :wagons
 
-  def initialize(number, type, wagons)
+  def initialize(number, wagons)
     @number = number
     @type = type
     @wagons = wagons
@@ -43,13 +27,13 @@ class Train
   def add_wagon
     return if speed.positive?
 
-    self.wagons += 1
+    @wagons += 1
   end
 
   def remove_wagon
     return if speed.positive? || wagons.zero?
 
-    self.wagons -= 1
+    @wagons -= 1
   end
 
   def set_route(route)
@@ -91,5 +75,20 @@ class Train
 
   def next_station
     route.stations[current_station_index + 1]
+  end
+end
+
+class PassengerTrain < Train
+  def initialize(number, wagons)
+    super
+    @type = :passenger
+  end
+end
+
+#
+class CargoTrain < Train
+  def initialize(number, wagons)
+    super
+    @type = :cargo
   end
 end
