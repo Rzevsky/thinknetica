@@ -3,13 +3,18 @@
 class Train
   attr_reader :number, :type, :route, :current_station_index, :speed, :wagons
 
-  def initialize(number, wagons)
+  def initialize(type, number, wagons = 0)
     @number = number
+    @name = number
     @type = type
-    @wagons = wagons
     @speed = 0
+    @wagons = Array.new(wagons) { init_wagons }
     @route = nil
     @current_station_index = 0
+  end
+
+  def remove_wagon
+    wagons.pop if wagons.any? && speed.zero?
   end
 
   def accelerate(value)
@@ -20,38 +25,16 @@ class Train
     @speed = 0
   end
 
-  def wagons_count
-    wagons
-  end
-
-  def add_wagon
-    return if speed.positive?
-
-    @wagons += 1
-  end
-
-  def remove_wagon
-    return if speed.positive? || wagons.zero?
-
-    @wagons -= 1
-  end
-
-  def set_route(route)
+  def route=(route)
     @route = route
     @current_station_index = 0
-
-    # Сам себе объясняю:
-    # Вызывается метод current_station, который возвращает текущую станцию (см. в ниже, в конце).
-    # Т.е. тут вызывается метод accept_train подставленного экземпляра станции.
-    # А параметром является экземпляр поезда (self):
     current_station.accept_train(self)
   end
 
   def move_forward
-    return unless next_station # если нет следующей станции, выходим
+    return unless next_station
 
     current_station.send_train(self)
-
     @current_station_index += 1
     current_station.accept_train(self)
   end
@@ -68,7 +51,6 @@ class Train
     route.stations[current_station_index - 1]
   end
 
-  # метод возвращает текущую СТАНЦИЮ (объект класса Station)
   def current_station
     route.stations[current_station_index]
   end
@@ -76,19 +58,42 @@ class Train
   def next_station
     route.stations[current_station_index + 1]
   end
-end
 
-class PassengerTrain < Train
-  def initialize(number, wagons)
-    super
-    @type = :passenger
+  private
+
+  # Этот метод работает при инициализации поезда и публичным не должен быть по определению.
+  def init_wagons
+    return unless speed.zero?
+
+    case type
+    when :psg then PassengerWagon.new
+    when :crg then CargoWagon.new
+    end
   end
 end
 
-#
+class PassengerTrain < Train
+  def initialize(number, wagons = 0)
+    super(:psg, number, wagons)
+    @type = :psg
+  end
+
+  def add_wagon
+    return unless speed.zero?
+
+    @wagons << PassengerWagon.new
+  end
+end
+
 class CargoTrain < Train
-  def initialize(number, wagons)
-    super
-    @type = :cargo
+  def initialize(number, wagons = 0)
+    super(:crg, number, wagons)
+    @type = :crg
+  end
+
+  def add_wagon
+    return unless speed.zero?
+
+    @wagons << CargoWagon.new
   end
 end

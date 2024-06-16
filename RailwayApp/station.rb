@@ -28,7 +28,10 @@ class Station
     trains.each { |train| puts train.number }
   end
 
+  # Этот метод не используется (пока) из интерфейса программы. Но на приватный он все равно не тянет.
   def list_trains_by_type(type)
     trains.select { |train| train.type == type }
   end
+
+  # private
 end
