@@ -23,10 +23,8 @@
 
 # frozen_string_literal: true
 
-require_relative 'train'
-require_relative 'wagon'
-require_relative 'station'
-require_relative 'route'
+require 'require_all'
+require_all 'lib'
 
 def get_index_by_name(word, array)
   array.index { |item| item.name == word }
