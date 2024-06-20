@@ -1,11 +1,14 @@
-# frozen_string_literal: true
+require_relative '../modules/instance_counter'
 
 class Route
+  include InstanceCounter
+
   attr_reader :stations, :name
 
   def initialize(start_station, end_station)
     @stations = [start_station, end_station]
     @name = "#{start_station.name}-#{end_station.name}"
+    register_instance
   end
 
   def add_station(station)

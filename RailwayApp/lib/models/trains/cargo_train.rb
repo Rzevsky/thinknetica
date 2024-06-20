@@ -1,4 +1,4 @@
-require_relative 'train'
+require_relative '../train'
 
 class CargoTrain < Train
   def initialize(number, wagons = 0)

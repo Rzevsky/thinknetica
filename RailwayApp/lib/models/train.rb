@@ -1,6 +1,22 @@
-# frozen_string_literal: true
+require_relative '../modules/manufacturer'
+require_relative '../modules/instance_counter'
 
 class Train
+  include InstanceCounter
+  include Manufacturer
+
+  # Class methods
+  @@all_trains = []
+
+  def self.all
+    @@all_trains
+  end
+
+  def self.find(number)
+    @@all_trains.find { |train| train.number == number }
+  end
+
+  # Instance methods
   attr_reader :number, :type, :route, :current_station_index, :speed, :wagons
 
   def initialize(type, number, wagons = 0)
@@ -11,6 +27,8 @@ class Train
     @wagons = Array.new(wagons) { init_wagons }
     @route = nil
     @current_station_index = 0
+    @@all_trains << self
+    register_instance
   end
 
   def remove_wagon
@@ -61,10 +79,7 @@ class Train
 
   private
 
-  # Этот метод работает при инициализации поезда и публичным не должен быть по определению.
   def init_wagons
-    return unless speed.zero?
-
     case type
     when :psg then PassengerWagon.new
     when :crg then CargoWagon.new
