@@ -4,10 +4,14 @@ class Station
   include InstanceCounter
 
   # Class methods
-  @@all_stations = []
+  @all_stations = []
 
-  def self.all
-    @@all_stations
+  class << self
+    attr_reader :all_stations
+
+    # def all
+    #   @all_stations
+    # end
   end
 
   # Instance methods
@@ -16,7 +20,7 @@ class Station
   def initialize(name)
     @name = name
     @trains = []
-    @@all_stations << self
+    self.class.all_stations << self
     register_instance
   end
 
@@ -29,7 +33,7 @@ class Station
   end
 
   def list_trains
-    trains.each { |train| puts train.number }
+    trains.each(&:number)
   end
 
   def list_trains_by_type(type)

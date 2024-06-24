@@ -3,11 +3,24 @@ require_relative '../modules/instance_counter'
 class Route
   include InstanceCounter
 
+  # Class methods
+  @all_routes = []
+
+  class << self
+    attr_reader :all_routes
+
+    # def all
+    #   @all_routes
+    # end
+  end
+
+  # Instance methods
   attr_reader :stations, :name
 
   def initialize(start_station, end_station)
     @stations = [start_station, end_station]
     @name = "#{start_station.name}-#{end_station.name}"
+    self.class.all_routes << self
     register_instance
   end
 

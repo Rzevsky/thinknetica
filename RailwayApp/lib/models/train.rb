@@ -8,27 +8,39 @@ class Train
   # Class methods
   @@all_trains = []
 
-  def self.all
-    @@all_trains
-  end
+  class << self
+    def all_trains
+      @@all_trains
+    end
 
-  def self.find(number)
-    @@all_trains.find { |train| train.number == number }
+    def find(number)
+      @@all_trains.find { |train| train.number == number }
+    end
   end
 
   # Instance methods
   attr_reader :number, :type, :route, :current_station_index, :speed, :wagons
 
+  NUMBER_FORMAT = /^TR-[CP]\d{2}$/i.freeze
+
   def initialize(type, number, wagons = 0)
+    @wagons_qty = wagons
     @number = number
+    validate!
     @name = number
     @type = type
     @speed = 0
-    @wagons = Array.new(wagons) { init_wagons }
+    @wagons = Array.new(wagons_qty.to_i) { init_wagons }
     @route = nil
     @current_station_index = 0
     @@all_trains << self
     register_instance
+  end
+
+  def valid?
+    validate!
+  rescue RuntimeError
+    false
   end
 
   def remove_wagon
@@ -79,10 +91,19 @@ class Train
 
   private
 
+  attr_reader :wagons_qty
+
   def init_wagons
     case type
     when :psg then PassengerWagon.new
     when :crg then CargoWagon.new
     end
+  end
+
+  def validate!
+    raise 'Train number has invalid format.' if number !~ NUMBER_FORMAT
+    raise 'Train number is not unique.' if self.class.find(number)
+    # Специально не преобразовывал из String - чтобы поймать тут все, что введено. Так же по заданию?
+    raise 'Quantity of wagons entered incorrectly.' if wagons_qty.to_s !~ /\A(0|[1-9]\d*)\z/
   end
 end
