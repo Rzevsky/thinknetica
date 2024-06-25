@@ -1,15 +1,17 @@
 require_relative '../modules/manufacturer'
 require_relative '../modules/instance_counter'
+require_relative '../modules/validation'
 
 class Train
-  include InstanceCounter
   include Manufacturer
+  include InstanceCounter
+  include Validation
 
   # Class methods
   @@all_trains = []
 
   class << self
-    def all_trains
+    def all
       @@all_trains
     end
 
@@ -21,26 +23,21 @@ class Train
   # Instance methods
   attr_reader :number, :type, :route, :current_station_index, :speed, :wagons
 
+  VALID_TYPES = %i[psg crg].freeze
   NUMBER_FORMAT = /^TR-[CP]\d{2}$/i.freeze
 
   def initialize(type, number, wagons = 0)
-    @wagons_qty = wagons
+    @type = type
     @number = number
+    @wagons_qty = wagons
     validate!
     @name = number
-    @type = type
     @speed = 0
     @wagons = Array.new(wagons_qty.to_i) { init_wagons }
     @route = nil
     @current_station_index = 0
     @@all_trains << self
     register_instance
-  end
-
-  def valid?
-    validate!
-  rescue RuntimeError
-    false
   end
 
   def remove_wagon
@@ -101,9 +98,13 @@ class Train
   end
 
   def validate!
-    raise 'Train number has invalid format.' if number !~ NUMBER_FORMAT
-    raise 'Train number is not unique.' if self.class.find(number)
-    # Специально не преобразовывал из String - чтобы поймать тут все, что введено. Так же по заданию?
-    raise 'Quantity of wagons entered incorrectly.' if wagons_qty.to_s !~ /\A(0|[1-9]\d*)\z/
+    errors = []
+
+    errors << 'Type of the train has an invalid format.' unless VALID_TYPES.include?(type)
+    errors << 'Train number has invalid format.' if number !~ NUMBER_FORMAT
+    errors << 'Train number is not unique.' if self.class.find(number)
+    errors << 'Quantity of wagons entered incorrectly.' if wagons_qty.to_s !~ /\A(0|[1-9]\d*)\z/
+
+    raise errors.join("\n") unless errors.empty?
   end
 end
